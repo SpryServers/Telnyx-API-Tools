@@ -33,7 +33,7 @@ while [[ "$#" -gt 0 ]]; do
 
 
 call_register() {
-    curl -X POST https://api.telnyx.com/v2/calls/register \
+    curl -s -X POST https://api.telnyx.com/v2/calls/register \
          -H "Content-Type: application/json" \
          -H "Accept: application/json" \
          -H "Authorization: Bearer $APIKEY" \
@@ -51,6 +51,6 @@ if [[ "$REGISTERCALL" -eq 1 ]]; then
         echo "No API key specified in config. Please create and/or update api.conf file."
         exit 1
     fi
-    call_register
+    call_register | jq
 fi
 unset APIKEY
