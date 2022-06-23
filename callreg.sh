@@ -4,6 +4,10 @@ set -e
 
 unset APIKEY
 unset REGISTERCALL
+unset GET_VERIFIEDNUMBERS
+unset GET_VERIFIEDREASONS
+unset GET_PROFILES
+unset INPUT
 
 SCRIPT_REL_DIR=$(dirname "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(cd $SCRIPT_REL_DIR && pwd)
@@ -14,9 +18,13 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
       -r  | --regcall ) INPUT=1 REGISTERCALL=1 FROM=$2 TO=$3 REASON=$4
       ;;
-      -gn | --get-numbers ) INPUT=1 && cat $SCRIPT_DIR/verifiedcalls/numbers.conf
+#     -gn | --get-numbers ) INPUT=1 && cat $SCRIPT_DIR/verifiedcalls/numbers.conf
+## Un-comment above and comment-out below to use list instead of API #####
+      -gn | --get-numbers ) INPUT=1 GET_VERIFIEDNUMBERS=1
       ;;
-      -gr | --get-reasons ) INPUT=1 && cat $SCRIPT_DIR/verifiedcalls/callreasons.conf
+## Un-comment above and comment-out below to use list instead of API #####      
+#     -gr | --get-reasons ) INPUT=1 && cat $SCRIPT_DIR/verifiedcalls/callreasons.conf
+      -gr | --get-reasons ) INPUT=1 GET_VERIFIEDREASONS=1
       ;;
       -gp | --get-profiles ) INPUT=1 && GET_PROFILES=1
       ;;
@@ -55,6 +63,26 @@ verifiedcall_register_call() {
          -H "Authorization: Bearer $APIKEY" \
          -d "{\"from\": \"$FROM\", \"to\": \"$TO\", \"reason\": \"$REASON\"}"
 }
+
+if [[ "$GET_VERIFIEDNUMBERS" -eq 1 ]]; then
+    if [ -z $APIKEY ]; then
+        echo "No API key specified in config. Please create and/or update api.conf file."
+        exit 1
+    fi
+    verifiedcall_getprofiles | jq | grep -A3 "\"google_verification_status\"\: \"APPROVED\"" | grep -B3 phone_number | grep "\"phone_number\"\:" | cut -f 4 -d '"'
+    unset APIKEY
+    exit 0
+fi
+
+if [[ "$GET_VERIFIEDREASONS" -eq 1 ]]; then
+    if [ -z $APIKEY ]; then
+        echo "No API key specified in config. Please create and/or update api.conf file."
+        exit 1
+    fi
+    verifiedcall_getprofiles | jq | grep -A3 "\"google_verification_status\"\: \"APPROVED\"" | grep -B3 call_reason | grep "\"reason\"\:" | cut -f 4 -d '"'
+    unset APIKEY
+    exit 0
+fi
 
 if [[ "$GET_PROFILES" -eq 1 ]]; then
     if [ -z $APIKEY ]; then
