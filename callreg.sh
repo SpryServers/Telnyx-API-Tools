@@ -21,9 +21,9 @@ while [[ "$#" -gt 0 ]]; do
 #     -gn | --get-numbers ) INPUT=1 && cat $SCRIPT_DIR/verifiedcalls/numbers.conf
 ## Un-comment above and comment-out below to use list instead of API #####
       -gn | --get-numbers ) INPUT=1 GET_VERIFIEDNUMBERS=1
-      ;;
-## Un-comment above and comment-out below to use list instead of API #####      
+      ;;     
 #     -gr | --get-reasons ) INPUT=1 && cat $SCRIPT_DIR/verifiedcalls/callreasons.conf
+## Un-comment above and comment-out below to use list instead of API ##### 
       -gr | --get-reasons ) INPUT=1 GET_VERIFIEDREASONS=1
       ;;
       -gp | --get-profiles ) INPUT=1 && GET_PROFILES=1
@@ -99,7 +99,7 @@ if [[ "$REGISTERCALL" -eq 1 ]]; then
         echo "No API key specified in config. Please create and/or update api.conf file."
         exit 1
     fi
-    if [ -z $REASON ]; then
+    if [[ -z "$REASON" ]]; then
         echo "You must specify an approved call reason. For help, pass -h."
         unset APIKEY
         exit 1        
